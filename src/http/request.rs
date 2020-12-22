@@ -5,16 +5,16 @@ use std::fmt::{Display, Debug, Formatter, Result as fmtResult};
 use std::str;
 use std::str::Utf8Error;
 
-pub struct Request {
-    path: String,
-    query_string: Option<String>,
+pub struct Request<'a> {
+    path: &'a str,
+    query_string: Option<&'a str>,
     method: Method,
 }
 
-impl TryFrom<&[u8]> for Request {
+impl<'a> TryFrom<&'a[u8]> for Request<'a> {
     type Error = ParseError;
 
-    fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
+    fn try_from(buf: &'a[u8]) -> Result<Self, Self::Error> {
 
         /*
         match str::from_utf8(buf).or(Err(ParseError::InvalidEncoding)){
@@ -23,11 +23,12 @@ impl TryFrom<&[u8]> for Request {
         }
         is simplified like so:
         */
+        
         let request = str::from_utf8(buf)?;
 
-        let (method, request) = get_next_word(&request).ok_or(ParseError::InvalidMethod)?;
-        let (mut path, request) = get_next_word(&request).ok_or(ParseError::InvalidMethod)?;
-        let (protocol, _) = get_next_word(&request).ok_or(ParseError::InvalidMethod)?;
+        let (method, request) = get_next_word(request).ok_or(ParseError::InvalidMethod)?;
+        let (mut path, request) = get_next_word(request).ok_or(ParseError::InvalidMethod)?;
+        let (protocol, _) = get_next_word(request).ok_or(ParseError::InvalidMethod)?;
         
         if protocol != "HTTP/1.1" {
             return Err(ParseError::InvalidProtocol);
@@ -42,7 +43,11 @@ impl TryFrom<&[u8]> for Request {
             path = &path[..i];
         }
         
-        unimplemented!()
+        Ok(Self{
+            path,
+            query_string,
+            method
+        })
     }
 }
 
