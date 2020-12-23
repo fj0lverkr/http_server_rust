@@ -1,12 +1,13 @@
-pub enum Statuscode {}
+use super::StatusCode;
 
+#[derive(Debug)]
 pub struct Response {
-    statuscode: Statuscode,
+    statuscode: StatusCode,
     body: Option<String>,
 }
 
 impl Response {
-    pub fn new(statuscode: Statuscode, body: Option<String>) -> Self{
+    pub fn new(statuscode: StatusCode, body: Option<String>) -> Self{
         Response {statuscode, body}
     }
 }
