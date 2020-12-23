@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+#[derive(Debug)]
 pub enum Method {
     GET,     //The GET method requests a representation of the specified resource. Requests using GET should only retrieve data.
     HEAD,    //The HEAD method asks for a response identical to that of a GET request, but without the response body.
