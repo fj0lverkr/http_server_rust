@@ -46,7 +46,8 @@ impl Handler for WebsiteHandler {
                     None => Response::new(StatusCode::NotFound, None)
                 },
             },
-            _ => Response::new(StatusCode::NotFound, None)
+            Method::PUT | Method::DELETE | Method::PATCH => Response::new(StatusCode::MethodNotAllowed, None),
+            _ => Response::new(StatusCode::NotImplemented, None)
         }
     }
 }
