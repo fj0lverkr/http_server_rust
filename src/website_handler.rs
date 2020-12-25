@@ -39,6 +39,13 @@ impl Handler for WebsiteHandler {
                     None => Response::new(StatusCode::NotFound, None)
                 },
             },
+            Method::HEAD => match request.path() {
+                "/" => Response::new(StatusCode::Ok, None),
+                path => match self.read_file(path) {
+                    Some(_) => Response::new(StatusCode::Ok, None),
+                    None => Response::new(StatusCode::NotFound, None)
+                },
+            },
             _ => Response::new(StatusCode::NotFound, None)
         }
     }
