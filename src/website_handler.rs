@@ -36,18 +36,18 @@ impl Handler for WebsiteHandler {
                 "/" => Response::new(StatusCode::Ok, self.read_file("index.html")),
                 path => match self.read_file(path) {
                     Some(content) => Response::new(StatusCode::Ok, Some(content)),
-                    None => Response::new(StatusCode::NotFound, None)
+                    None => Response::new(StatusCode::NotFound, self.read_file("/errorpages/404.html"))
                 },
             },
             Method::HEAD => match request.path() {
                 "/" => Response::new(StatusCode::Ok, None),
                 path => match self.read_file(path) {
                     Some(_) => Response::new(StatusCode::Ok, None),
-                    None => Response::new(StatusCode::NotFound, None)
+                    None => Response::new(StatusCode::NotFound, self.read_file("/errorpages/404.html"))
                 },
             },
-            Method::PUT | Method::DELETE | Method::PATCH => Response::new(StatusCode::MethodNotAllowed, None),
-            _ => Response::new(StatusCode::NotImplemented, None)
+            Method::PUT | Method::DELETE | Method::PATCH => Response::new(StatusCode::MethodNotAllowed, self.read_file("/errorpages/503.html")),
+            _ => Response::new(StatusCode::NotImplemented, self.read_file("/errorpages/503.html"))
         }
     }
 }
