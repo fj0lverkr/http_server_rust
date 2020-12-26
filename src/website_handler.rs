@@ -13,7 +13,13 @@ impl WebsiteHandler {
     }
 
     fn read_file(&self, file_path: &str) -> Option<String> {
-        let path = format!("{}/{}", self.public_path, file_path);
+
+        let mut path = format!("{}/{}", self.public_path, file_path);
+        
+        if cfg!(windows) {
+            path = format!("{}\\{}", self.public_path, file_path);
+        }
+        
         match fs::canonicalize(path) {
             Ok(path) => {
                 if path.starts_with(&self.public_path){
