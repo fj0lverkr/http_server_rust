@@ -2,13 +2,14 @@ use super::server::Handler;
 use super::http::{Request, Response, StatusCode, Method};
 use std::fs;
 
-#[derive(Debug)]
-pub struct WebsiteHandler {
-    public_path : String,
+#[derive(Debug, Copy, Clone)]
+pub struct WebsiteHandler<'a> {
+    public_path : &'a str,
 }
 
-impl WebsiteHandler {
-    pub fn new(public_path: String) -> Self{
+impl<'a> WebsiteHandler<'a> {
+    pub fn new(public_path: &str) -> Self{
+        let public_path = public_path;
         Self { public_path }
     }
 
@@ -30,7 +31,7 @@ impl WebsiteHandler {
     }
 }
 
-impl Handler for WebsiteHandler {
+impl<'a> Handler for WebsiteHandler<'a> {
     fn handle_request(&mut self, request: &Request) -> Response{
         dbg!(request);
         match request.method() {
