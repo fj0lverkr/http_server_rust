@@ -35,21 +35,23 @@ impl Server {
         loop {
             match listener.accept() {
                 Ok((mut stream, addr)) => {
-                    println!("Connection accepted from {}.", addr);
-                    let mut buffer = [0; 1024];
-                    match stream.read(&mut buffer) {
-                        Ok(_) => {
-                            println!("Received request: {}.", String::from_utf8_lossy(&buffer));
-                            let response = match Request::try_from(&buffer[..]) {
-                                Ok(request) => handler.handle_request(&request),
-                                Err(e) => handler.handle_bad_request(&e)
-                            };
-                            if let Err(e) = response.send(&mut stream){
-                                println!("Failed to send response; {}.", e);
+                    self.pool.execute(||{
+                        println!("Connection accepted from {}.", addr);
+                        let mut buffer = [0; 1024];
+                        match stream.read(&mut buffer) {
+                            Ok(_) => {
+                                println!("Received request: {}.", String::from_utf8_lossy(&buffer));
+                                let response = match Request::try_from(&buffer[..]) {
+                                    Ok(request) => handler.handle_request(&request),
+                                    Err(e) => handler.handle_bad_request(&e)
+                                };
+                                if let Err(e) = response.send(&mut stream){
+                                    println!("Failed to send response; {}.", e);
+                                }
                             }
+                            Err(e) => println!("Failed to read from connection: {}", e),
                         }
-                        Err(e) => println!("Failed to read from connection: {}", e),
-                    }
+                    });
                 }
                 Err(e) => println!("Failed to establish a connection: {}", e),
             }

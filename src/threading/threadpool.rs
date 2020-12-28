@@ -12,4 +12,11 @@ impl ThreadPool{
     pub fn size(&self) -> &usize {
         &self.size
     }
+
+    pub fn execute<F>(self, f: F)
+    where
+        F: FnOnce() + Send + 'static,
+    {
+        unimplemented!()
+    }
 }
