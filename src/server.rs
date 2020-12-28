@@ -27,10 +27,10 @@ impl Server {
         }
     }
 
-    pub fn run(self, mut handler: impl Handler + Send + Copy + 'static) {
+    pub fn run(self, mut handler: impl Handler + Send + 'static) {
         let listener = TcpListener::bind(&self.addr).unwrap();
         println!("Listening on {}, using {} threads.", &self.addr, self.poolsize);
-        let pool = ThreadPool::new(4);
+        let pool = ThreadPool::new(self.poolsize);
         loop{
             match listener.accept() {
                 Ok((mut stream, addr)) => {
