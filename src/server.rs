@@ -1,4 +1,5 @@
 use crate::http::{Request, Response, StatusCode, ParseError};
+use crate::threading::ThreadPool;
 use std::convert::TryFrom;
 use std::io::Read;
 use std::net::TcpListener;
@@ -14,18 +15,20 @@ pub trait Handler {
 
 pub struct Server {
     addr: String,
+    pool: ThreadPool,
 }
 
 impl Server {
 
-    pub fn new(addr: String) -> Self {
+    pub fn new(addr: String, poolsize: usize) -> Self {
         Server {
-            addr: addr
+            addr: addr,
+            pool: ThreadPool::new(poolsize)
         }
     }
 
     pub fn run(self, mut handler: impl Handler) {
-        println!("Listening on {}", self.addr);
+        println!("Listening on {}, using {} threads.", self.addr, self.pool.size());
 
         let listener = TcpListener::bind(&self.addr).unwrap();
 
