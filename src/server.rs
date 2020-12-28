@@ -3,6 +3,7 @@ use crate::threading::ThreadPool;
 use std::convert::TryFrom;
 use std::io::Read;
 use std::net::TcpListener;
+use std::sync::{Arc, Mutex};
 
 pub trait Handler {
     fn handle_request(&mut self, request: &Request) -> Response;
@@ -15,27 +16,24 @@ pub trait Handler {
 
 pub struct Server {
     addr: String,
-    pool: ThreadPool,
 }
 
 impl Server {
 
-    pub fn new(addr: String, poolsize: usize) -> Self {
+    pub fn new(addr: String) -> Self {
         Server {
             addr: addr,
-            pool: ThreadPool::new(poolsize)
         }
     }
 
-    pub fn run(self, mut handler: impl Handler) {
-        println!("Listening on {}, using {} threads.", self.addr, self.pool.size());
-
+    pub fn run(self, mut handler: impl Handler + Send + 'static, pool: ThreadPool) {
         let listener = TcpListener::bind(&self.addr).unwrap();
+        println!("Listening on {}, using {} threads.", &self.addr, pool.size());
 
-        loop {
+        loop{
             match listener.accept() {
                 Ok((mut stream, addr)) => {
-                    self.pool.execute(||{
+                    pool.execute(|| {
                         println!("Connection accepted from {}.", addr);
                         let mut buffer = [0; 1024];
                         match stream.read(&mut buffer) {
