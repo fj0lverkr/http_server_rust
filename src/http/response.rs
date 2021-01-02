@@ -23,6 +23,5 @@ impl Response {
         self.statuscode,
         self.statuscode.reason_phrase(),
         body
-        
     )}
 }
